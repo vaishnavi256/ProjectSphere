@@ -1,113 +1,71 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from 'react'
 
-const Idea = () => {
+
+// model Idea {
+//     id     Int  @id @default(autoincrement())
+//     teamId Int
+//     topic String
+//     comment String
+//     approved Int // 0 -> pending, 1 -> approved, 2 -> rejected
+//   }
+export default function Idea() {
     const [idea, setIdea] = useState({
-        "Description" : "",
-        "status" : 0  // 0 -> pending, 1 -> approved, 2 -> rejected
-    });
-    
-    const [ideaStatus, setIdeaStatus] = useState("rejected"); // pending | approved | rejected
-    const [synopsis, setSynopsis] = useState({
-        "file" : null, 
-        "status" : 0 // 0 -> pending, 1 -> approved, 2 -> rejected
+        "topic" : "",
+        "approved" : 0, // 0 -> pending, 1 -> approved, 2 -> rejected
+        "teamId" : 0
     });
 
-    const [newIdea, setNewIdea] = useState("");
+    const [teamId, setTeamId] = useState ("");
 
-    const [synopsisFile, setSynopsisFile] = useState(null);
- 
-
-    useEffect(() => {
-        fetchIdea();
-        fetchIdeaUnderReview();
-        fetchSynopsis()
-    }, []);
-
-    const fetchIdea = async () => {
+    async function getTeamId() {
+        const resp = await fetch ('http://localhost:3000/student/profile', {
+            method : "GET",
+            headers : {
+                "Content-Type" : "application/json",
+                "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            } 
+        })
         
-    };
-
-    const fetchSynopsis = async () => {
+        const data = await resp.json();
+        if (!resp.ok){
+            alert(data.data)
+        }
+        else {
+            console.log (data.data);
+            setIdea ((prev) => ({ ...prev, teamId: data.data.teamId }))
+        }
         
-    };
-
-    const fetchIdeaUnderReview = async () => {
-      try {
-
-      }
-      catch(e){
-
-      }
     }
 
-    const handleSynopsisFileUpload = (event : any) => {
-        // synopsis submission
-    };
+    async function handleSubmit() {
+        console.log (idea.teamId)
+        const resp = await fetch ("http://localhost:3000/student/idea", {
+            method: "POST",
+            headers : {
+                "Content-Type" : "application/json",
+                "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            },
+            body : JSON.stringify(idea)
+        })
+        const data = await resp.json();
+        if (!resp.ok){
+            alert (data.message);
+        }
+        else{
+            alert ("Idea submitted successfully!");
+        }
+    }
 
-    const handlesubmit = async () => {
-      // idea submission
-    };
+    useEffect (() => {
+        getTeamId();
+    }, [])
 
-    // Guides remark section remaining 
-
-    return (
-        <div className="max-w-2xl mx-auto mt-6 p-6 bg-white shadow-lg rounded">
-            <h2 className="text-xl font-bold mb-4">Project</h2>
-                {/* // issue : multiple ideas even if we delete rejected there will be under review idea  */}
-                {ideaStatus === "approved" ? (
-                <div>
-                    <h3 className="text-lg font-semibold ">Your Approved Idea :</h3>
-                    <p className="text-gray-700 bg-gray-100 p-4 rounded">{}</p>
-                    
-                    {synopsis.status === 1 ? (
-                        <div className="mt-4 p-4  rounded">
-                            <h3 className="text-lg font-semibold">Your Approved Synopsis:</h3>
-                            <a href={synopsis.file || ""} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline">
-                                View Synopsis
-                            </a>
-                        </div>
-                    ) : (
-                        <div className="mt-4">
-                            <h3 className="text-lg font-semibold text-blue-600">Submit Your Synopsis</h3>
-                            <input 
-                                type="file" 
-                                className="mt-2 border p-2 rounded w-full"
-                                accept=".pdf,.doc,.docx"
-                            />
-                            <button 
-                                className="mt-3 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                                onClick={handleSynopsisFileUpload}
-                            >
-                                Upload & Submit Synopsis
-                            </button>
-                            {/* guide should be able to give remarks aswell */}
-                        </div>
-                    )}
-                </div>
-            ) : (
-                <div>
-                  <h3 className="text-lg font-semibold">Submit your idea.</h3>
-                  <textarea 
-                      className="w-full p-2 border rounded"
-                      placeholder="Enter new idea..."
-                      value={newIdea}
-                      onChange={(e) => setNewIdea(e.target.value)}
-                  />
-                  <button 
-                      className="mt-3 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                      onClick={handlesubmit}
-                  >
-                      Submit Idea
-                  </button>
-
-                  <div className="">
-                    <h1 className="text-lg font-semibold p-2">Ideas under review</h1>
-                    
-                  </div>
-              </div>
-            )}
-        </div>
-    );
-};
-
-export default Idea;
+  return (
+    
+    <div className='bg-white shadow-md p-6 rounded-lg'>
+        <div className='text-md'>Add your idea for review</div>
+        <input type="text" className='border-2 border-blue-200 rounded-md p-2 mt-2 w-full' placeholder='Enter your idea' onChange={(e) => setIdea({...idea, topic: e.target.value})}/>
+        <button className='p-2 bg-blue-500 text-white mt-2 rounded-md' onClick={handleSubmit}>Submit </button>
+    </div>
+  )
+}

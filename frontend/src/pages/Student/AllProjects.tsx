@@ -33,12 +33,12 @@ export default function AllProjects() {
     }
 
   return (
-    <div>
-        <h1 className='text-2xl font-semibold'>All Projects</h1>
+      <div className="bg-white shadow-md p-6 rounded-lg">
+      <h2 className="text-xl font-semibold text-blue-700">All Projects</h2>
       {
         allProjects.map ((project, index) => {
             return (
-                <div key={index} onClick={() => directToProjectDetails({index})} className='m-2 p-2 bg-blue-100 shadow rounded-sm cursor-pointer'>
+                <div key={index} onClick={() => directToProjectDetails({index})} className='m-2 p-2 bg-blue-50 shadow rounded-sm cursor-pointer'>
                     <h1 className='text-lg font-medium'>{project.title} {index}</h1>
                     <p>{project.description}</p>
                 </div>

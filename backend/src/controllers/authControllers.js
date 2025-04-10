@@ -6,9 +6,11 @@ require("dotenv").config();
 const SECRET_KEY = process.env.JWT_SECRET;
 
 exports.signup = async (req, res) => {
-    const { name, email, password, prn, semester} = req.body;
+    let { name, email, password, prn, semester} = req.body;
     console.log (name, email, password, prn, semester);
-    
+    console.log (typeof semester);
+    semester = parseInt(semester);
+
     try {
         console.log (name, email, password, prn, semester);
         const existingUser = await prisma.student.findFirst({ where: { email } });
@@ -63,7 +65,7 @@ exports.login = async (req, res) => {
         res.json({ message: "success", token, semester, email });
 
     } catch (error) {
-        res.status(500).json({message : "fail", error: error.message });
+        res.status(500).json({message : "fail", error: "Check email or password" });
     }
 };
 

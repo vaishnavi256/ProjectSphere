@@ -26,32 +26,47 @@ export default function StudentSignup() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    
+  
     if (form.password !== form.confirmPassword) {
       alert("Password and confirm password don't match");
       return;
     }
   
-    const resp = await fetch("http://localhost:3000/auth/signup", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: form.name,
-        email: form.email,
-        prn: form.prn,
-        semester: form.semester,
-        password: form.password,
-      }),
-    })
-    const data = await resp.json();
-    console.log (data);  
-    const token = data.token;
-    localStorage.setItem("token", token); 
-    navigate ("/student-dashboard")
-  }
+    try {
+      const resp = await fetch("http://localhost:3000/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          prn: form.prn,
+          semester: Number(form.semester),
+          password: form.password,
+        }),
+      });
   
+      const data = await resp.json();
+  
+      if (!resp.ok) {
+        const errorMsg = data?.message || data?.error || "Signup failed. Please try again.";
+        alert(errorMsg);
+        return;
+      }
+  
+      if (!data.token) {
+        alert("Signup succeeded, but no token received.");
+        return;
+      }
+  
+      localStorage.setItem("token", data.token);
+      navigate("/student-dashboard");
+    } catch (error) {
+      console.error("Signup error:", error);
+      alert("An unexpected error occurred. Please try again later.");
+    }
+  }
 
   function handleChange (e: ChangeEvent){
     const { name, value } = e.target;

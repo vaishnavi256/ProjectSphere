@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CreateTeam from "../../createdComp/CreateTeam";
+import { get } from "http";
 
 const Profile = () => {
     // function to request backend and get info
@@ -25,7 +26,10 @@ const Profile = () => {
         prn : 0
     }])
 
-    const [team, setTeam] = useState (["Vaishnavi"]);
+    const [team, setTeam] = useState ([{
+        name : "",
+        prn : ""
+    }]);
 
     const [prevProjects, setPrevProjects] = useState ([{
         "Semester" : 1,
@@ -62,22 +66,51 @@ const Profile = () => {
                         PRN: data.data.prn ,
                         Batch: data.data.batch || 0,
                         Guide: data.data.guide?.name || 0,
-                        Semester: data.data.semester || 6,
+                        Semester: data.data.semester,   
                         teamId: data.data.teamId || 0
                     };
                     return updatedStudent;
                 });
-                
             })
             .catch(error => console.error("Error fetching details:", error));           
         } catch (error) {
             console.error("Error fetching details:", error);
+        }
+        
+    }
+
+    async function getTeamDetails() {
+        // while (student.teamId == 0)
+        console.log (student.teamId);
+
+        const resp = await fetch (`http://localhost:3000/student/team/${student.teamId}`, {
+            method: "GET",
+            headers : {
+                "Content-Type" : "application/json",
+                "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            }
+        })
+        if (resp.ok) {
+            const data = await resp.json();
+            console.log ("Team details : ");
+            console.log (data);
+            setTeam ([]);
+            for (let i = 0; i < data.data.length; i++){
+                setTeam (prev => [...prev, {name : data.data[i].name, prn : data.data[i].prn}]);
+            }
+        }
+        else{
+            console.error ("Failed to fetch team data");
         }
     }
 
     useEffect(() => {
         getDetails();
     }, []);
+
+    useEffect (() => {
+        getTeamDetails();
+    }, [student.teamId])
 
     function directToProjectDetails({ index } : any) {
         const info = { semester: prevProjects[index].Semester, prn : student.teamId };
@@ -93,6 +126,7 @@ const Profile = () => {
                     <p className="text-gray-600">PRN: {student.PRN}</p>
                     <p className="text-gray-600">Batch: {student.Batch}</p>
                     <p className="text-gray-600">Guide: {student.Guide}</p>
+                    <p className="text-gray-600">Team: {student.teamId}</p>
                     <p className="text-blue-500 font-semibold">Semester: {student.Semester}</p>
                 </div>
             </div>
@@ -102,11 +136,14 @@ const Profile = () => {
 
             {/* Team details */}
             { student.teamId != 0 &&
+                
                 <div className="mt-6 p-4 bg-blue-50 rounded-lg shadow">
+                    {/* <button></button> */}
+                    // can create updation team
                     <h3 className="text-lg font-semibold mb-2">Team Details</h3>
                     <ul className="list-disc list-inside text-gray-700">
                         {team.map((member, index) => (
-                            <li key={index}>{member}</li>
+                            <li key={index}>{member.name} {member.prn} </li>  
                         ))}
                     </ul>
                 </div>

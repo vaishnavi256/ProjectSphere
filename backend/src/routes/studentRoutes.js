@@ -3,6 +3,7 @@ const { signup, login, profile, createTeam, getAll } = require ('../controllers/
 const { authenticateToken } = require("../middleware/authMiddleware");
 const { route } = require("./authRoutes");
 const {getTeamDetails} = require ("../controllers/studentControllers")
+const {getIdeas, idea} = require ("../controllers/ideaController")
 const router = express.Router();
 
 router.get("/profile", authenticateToken, profile);
@@ -12,7 +13,11 @@ router.get ("/getAll", authenticateToken, getAll);
 router.post ("/createTeam", authenticateToken, createTeam);
 router.get ("/team/:id", authenticateToken, getTeamDetails);
 
-router.get("/idea", authenticateToken);
+//idea
+router.get("/idea/:id", authenticateToken, getIdeas);
+router.post ("/idea", authenticateToken, idea);
+
+
 router.get ("/weeklyReport", authenticateToken);
 router.get ("/notification", authenticateToken);
 router.post ('/addIdea', authenticateToken);

@@ -12,7 +12,7 @@ exports.profile = async (req, res) => {
 	const {semester, email} = req.user;
 	// console.log (semester, email);
 	try{
-		const user = await prisma.student.findUnique({
+		const user = await prisma.student.findFirst({
 			where: {
 				semester,
 				email
@@ -95,20 +95,29 @@ async function addTeamIDForOtherMembers(team, teamId, semester) {
 
   exports.getTeamDetails = async (req, res) => {
 	// join => team and student teamId on id => return name and prn
-	const teamId = req.params.id;
+	const teamId = parseInt(req.params.id);
 	const {semester, email} = req.user;
-	// console.log (semester, email);
-	// const projects = await prisma.project.findMany({
-	// 	include: {
-	// 	  student: true,
-	// 	},
-	//   });
-	
-	const teams = await prisma.student.findMany({
-		where : {
-			semester : semester,
-			teamId : teamId
-		}
-	});
-	console.log (`team details : ${JSON.stringify(teams, null, 2)}`);
+	console.log (teamId)
+	try{
+		const teams = await prisma.student.findMany({
+			where : {
+				semester : semester,
+				teamId : teamId
+			}
+		});
+		console.log (`team details : ${JSON.stringify(teams, null, 2)}`);
+		res.json ({
+			message : "success",
+			data : teams
+		});
+	}
+	catch (e){
+		console.log (e);
+		res.json ({
+			message : "fail",
+			data : "Refresh error fetching data"
+		})
+	}
   }
+
+  // update team

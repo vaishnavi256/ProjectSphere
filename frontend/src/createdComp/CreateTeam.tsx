@@ -97,7 +97,7 @@ export default function CreateTeam() {
         <div>
             <input className='mt-1 border rounded-md p-1'  placeholder='Team Name' type="text" onChange={(e) => setTeamName(e.target.value)} />
         </div>
-        <button onClick={handleTeamCreation} className=''>Submit</button>
+        <button  onClick={handleTeamCreation} className='bg-blue-600 text-white p-1 mt-1 rounded-'>Submit</button>
     </div>
   )
 }

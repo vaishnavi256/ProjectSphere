@@ -39,7 +39,6 @@ model project {
   githubLink       String
 
   team             team?  @relation(fields: [teamId], references: [id])
-
   @@index([teamId], map: "Project_teamId_fkey")
 }
 
@@ -47,9 +46,8 @@ model Idea {
   id       Int    @id @default(autoincrement())
   teamId   Int
   topic    String
-  comment  String
+  comment Json
   approved Int // 0 -> pending, 1 -> approved, 2 -> rejected
-
   team     team  @relation(fields: [teamId], references: [id])
 }
 
